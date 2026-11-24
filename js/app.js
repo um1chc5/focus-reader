@@ -12,6 +12,7 @@ import {
 } from './search.js';
 import { initPicker, openPicker, closePicker, isPickerOpen, refreshPicker } from './picker.js';
 import { initLibrary, renderLibrary } from './library.js';
+import { initTheme, paintThemeUI, toggleDark, toggleFullscreen, isThemePopOpen, closeThemePop } from './themes.js';
 
 const pdfjs = window.pdfjsLib;
 if (pdfjs) pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -156,7 +157,7 @@ function refreshText() {
   $('q').placeholder = T('searchPh'); $('q').setAttribute('aria-label', T('searchPh'));
   $('pq').placeholder = T('pickerPh'); $('pq').setAttribute('aria-label', T('pickerPh'));
   $('wpmOut').textContent = st.wpm + ' ' + T('unit');
-  paintThemeBtn(); updatePlay(); paintNotice(); paintCount(); paintLibButton();
+  paintThemeUI(); updatePlay(); paintNotice(); paintCount(); paintLibButton();
   const D = st.doc;
   if (D) {
     $('docName').textContent = D.sample ? T('sampleName') : D.name;
@@ -178,24 +179,6 @@ function setLang(l) {
   if (!st.doc || st.doc.sample) loadSample(); else refreshText();
 }
 
-/* ---------- Theme ---------- */
-const effTheme = () => document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-function paintThemeBtn() {
-  const dark = effTheme() === 'dark';
-  $('themeBtn').innerHTML = dark
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
-  const label = T(dark ? 'toLight' : 'toDark');
-  $('themeBtn').setAttribute('aria-label', label);
-  $('themeBtn').title = label + ' (T)';
-}
-function toggleTheme() {
-  const t = effTheme() === 'dark' ? 'light' : 'dark';
-  document.documentElement.dataset.theme = t;
-  prefs.set('theme', t);
-  paintThemeBtn();
-}
-
 /* ---------- Events ---------- */
 function bindEvents() {
   const pickFile = () => $('file').click();
@@ -203,7 +186,6 @@ function bindEvents() {
   $('file').onchange = (e) => { openFile(e.target.files[0]); e.target.value = ''; };
   $('modeSpot').onclick = () => setMode('spot');
   $('modeWord').onclick = () => setMode('word');
-  $('themeBtn').onclick = toggleTheme;
   $('langBtn').onclick = () => setLang(st.lang === 'vi' ? 'en' : 'vi');
   $('libBtn').onclick = () => (st.view === 'library' ? showReader() : showLibrary());
   $('playBtn').onclick = toggle;
@@ -260,6 +242,7 @@ function bindEvents() {
   // Keyboard
   addEventListener('keydown', (e) => {
     const k = e.key.toLowerCase();
+    if (e.key === 'Escape' && isThemePopOpen()) { closeThemePop(); $('themeBtn').focus(); return; }
     if ((e.ctrlKey || e.metaKey) && k === 'f' && st.doc && st.view === 'reader' && !isPickerOpen()) {
       e.preventDefault(); openSearch(); return;
     }
@@ -268,8 +251,9 @@ function bindEvents() {
     if (t.tagName === 'INPUT' && t.type === 'range' && /Arrow/.test(e.key)) return;
     if (t.tagName === 'INPUT' && (t.type === 'search' || t.type === 'text')) return;
     if (isPickerOpen()) { if (e.key === 'Escape') closePicker(); return; }
+    if (k === 'f' && e.shiftKey) { e.preventDefault(); toggleFullscreen(); return; }
     if (k === 'l') { $('libBtn').click(); return; }
-    if (k === 't') { toggleTheme(); return; }
+    if (k === 't') { toggleDark(); return; }
     if (st.view !== 'reader') return;
     if (k === 'f' || e.key === '/') { e.preventDefault(); openSearch(); return; }
     if (e.key === 'Escape' && isSearchOpen()) { closeSearch(); return; }
@@ -281,15 +265,11 @@ function bindEvents() {
     else if (k === 'm') setMode(st.mode === 'spot' ? 'word' : 'spot');
     else if (k === 'p') openPicker();
   });
-
-  const mq = matchMedia('(prefers-color-scheme: dark)');
-  if (mq.addEventListener) mq.addEventListener('change', paintThemeBtn);
 }
 
 /* ---------- Start ---------- */
 async function start() {
-  const savedTheme = prefs.get('theme', null);
-  if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+  initTheme();
   bindEvents();
   setWpm(st.wpm);
   setFs(st.fs);

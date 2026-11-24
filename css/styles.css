@@ -1,39 +1,10 @@
-/* Focus Reader — warm book palette.
+/* Focus Reader — layout and components. Colors come from themes.css.
    Layout: full-height column — top bar, scrolling reading stage (or library shelf), docked transport. */
 
 :root {
-  --bg: #F3EBDD;
-  --surface: #FBF6EE;
-  --ink: #2E2218;
-  --muted: #7A6853;
-  --line: #E3D6C2;
-  --accent: #B4561F;
-  --on-accent: #FFF8EF;
-  --accent-soft: #F2DECB;
-  --hl: rgba(180, 86, 31, .10);
-  --mark: rgba(226, 160, 40, .42);
-  --danger: #A3271B;
-  --cover: #E8D9C2;
-  --shadow: rgba(60, 35, 15, .18);
-  --dim: .26;
   --read: 'Literata', Georgia, 'Times New Roman', serif;
   --ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --fs: 21px;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #17120E; --surface: #211A14; --ink: #EDE3D4; --muted: #A08E78; --line: #352A20;
-    --accent: #E8955A; --on-accent: #1E140C; --accent-soft: #3B2818; --hl: rgba(232, 149, 90, .13);
-    --mark: rgba(230, 160, 60, .32); --danger: #FF8A75; --cover: #2C2219; --shadow: rgba(0, 0, 0, .45);
-    --dim: .22; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #17120E; --surface: #211A14; --ink: #EDE3D4; --muted: #A08E78; --line: #352A20;
-  --accent: #E8955A; --on-accent: #1E140C; --accent-soft: #3B2818; --hl: rgba(232, 149, 90, .13);
-  --mark: rgba(230, 160, 60, .32); --danger: #FF8A75; --cover: #2C2219; --shadow: rgba(0, 0, 0, .45);
-  --dim: .22; color-scheme: dark;
 }
 
 /* ---------- Base ---------- */
@@ -240,6 +211,27 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
 .libEmpty h2 { font-family: var(--read); font-size: 20px; font-weight: 600; margin: 0 0 6px; }
 .libEmpty p { color: var(--muted); margin: 0 0 14px; line-height: 1.6; }
 .libEmpty .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- Appearance popover ---------- */
+.themeWrap { position: relative; }
+.themePop {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 40; width: min(340px, calc(100vw - 32px));
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px;
+  box-shadow: 0 16px 40px var(--shadow); display: flex; flex-direction: column; gap: 10px;
+}
+.popTitle { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.modeSeg { display: flex; }
+.modeSeg button { flex: 1; }
+.swatches { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.sw {
+  border: 0; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 6px 2px; border-radius: 8px; font-size: 11.5px; color: var(--muted); min-width: 0;
+}
+.sw:hover { background: var(--accent-soft); }
+.sw span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sw .chip { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); flex: none; }
+.sw[aria-pressed="true"] { color: var(--ink); font-weight: 500; }
+.sw[aria-pressed="true"] .chip { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); }
 
 /* ---------- Overlays ---------- */
 .drop { position: fixed; inset: 0; z-index: 30; background: rgba(25, 15, 8, .55); display: grid; place-items: center; padding: 24px; }

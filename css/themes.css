@@ -1,0 +1,79 @@
+/* Color themes.
+   <html data-theme="light|dark" data-palette="…"> is set before first paint by the inline script in index.html.
+   "book" is the default and needs no data-palette attribute.
+
+   To add a theme: copy one palette's two blocks, give it a new data-palette id,
+   and add the same id to PALETTES in js/themes.js plus a `pal_<id>` name in js/i18n.js.
+
+   Tokens:
+     --bg            page background          --surface      bars, cards, dialogs
+     --ink           main text                --muted        secondary text
+     --line          hairlines and borders    --accent       buttons, progress, focus
+     --on-accent     text on --accent         --accent-soft  selected / hover tint
+     --hl            current-sentence wash    --mark         search highlight
+     --danger        errors, delete           --cover        empty book cover
+     --shadow        shadow color             --dim          opacity of non-current sentences
+*/
+
+:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="light"], :root:not([data-theme]) { color-scheme: light; }
+
+/* ---------- Book (default): warm paper, burnt orange ---------- */
+:root {
+  --bg: #F3EBDD; --surface: #FBF6EE; --ink: #2E2218; --muted: #7A6853; --line: #E3D6C2;
+  --accent: #B4561F; --on-accent: #FFF8EF; --accent-soft: #F2DECB; --hl: rgba(180, 86, 31, .10);
+  --mark: rgba(226, 160, 40, .42); --danger: #A3271B; --cover: #E8D9C2; --shadow: rgba(60, 35, 15, .18); --dim: .26;
+}
+:root[data-theme="dark"] {
+  --bg: #17120E; --surface: #211A14; --ink: #EDE3D4; --muted: #A08E78; --line: #352A20;
+  --accent: #E8955A; --on-accent: #1E140C; --accent-soft: #3B2818; --hl: rgba(232, 149, 90, .13);
+  --mark: rgba(230, 160, 60, .32); --danger: #FF8A75; --cover: #2C2219; --shadow: rgba(0, 0, 0, .45); --dim: .22;
+}
+
+/* ---------- Paper: crisp off-white print, red-ink accent ---------- */
+:root[data-palette="paper"] {
+  --bg: #FAF8F3; --surface: #FFFFFF; --ink: #1C1B18; --muted: #6E6A61; --line: #E6E1D6;
+  --accent: #9E2B25; --on-accent: #FFFFFF; --accent-soft: #F3E3DF; --hl: rgba(158, 43, 37, .07);
+  --mark: rgba(240, 200, 80, .42); --danger: #9E2B25; --cover: #EFEBE2; --shadow: rgba(40, 30, 20, .14); --dim: .24;
+}
+:root[data-palette="paper"][data-theme="dark"] {
+  --bg: #1B1A17; --surface: #24221E; --ink: #E4DFD3; --muted: #9A9385; --line: #34312B;
+  --accent: #E0877C; --on-accent: #1B1A17; --accent-soft: #3A2624; --hl: rgba(224, 135, 124, .11);
+  --mark: rgba(230, 190, 80, .28); --danger: #FF8A75; --cover: #2B2924; --shadow: rgba(0, 0, 0, .45); --dim: .22;
+}
+
+/* ---------- Blue: cool paper, ink blue (the original look) ---------- */
+:root[data-palette="blue"] {
+  --bg: #F2F3EF; --surface: #FFFFFF; --ink: #1B1E23; --muted: #646A73; --line: #DADCD5;
+  --accent: #3550C4; --on-accent: #FFFFFF; --accent-soft: #E2E7FA; --hl: rgba(53, 80, 196, .09);
+  --mark: rgba(232, 176, 20, .38); --danger: #B3261E; --cover: #E3E6EC; --shadow: rgba(20, 30, 60, .16); --dim: .24;
+}
+:root[data-palette="blue"][data-theme="dark"] {
+  --bg: #111317; --surface: #1A1D23; --ink: #E5E5E0; --muted: #8C919A; --line: #2B2F37;
+  --accent: #95A7FF; --on-accent: #0E1222; --accent-soft: #242B48; --hl: rgba(149, 167, 255, .11);
+  --mark: rgba(240, 190, 60, .32); --danger: #FF8A80; --cover: #232733; --shadow: rgba(0, 0, 0, .45); --dim: .2;
+}
+
+/* ---------- Gray: neutral, low saturation ---------- */
+:root[data-palette="gray"] {
+  --bg: #EDEDEB; --surface: #F8F8F7; --ink: #222221; --muted: #6C6C69; --line: #D8D8D4;
+  --accent: #4E4E4B; --on-accent: #F8F8F7; --accent-soft: #E0E0DD; --hl: rgba(60, 60, 58, .08);
+  --mark: rgba(210, 180, 90, .38); --danger: #A3271B; --cover: #DDDDD9; --shadow: rgba(0, 0, 0, .14); --dim: .26;
+}
+:root[data-palette="gray"][data-theme="dark"] {
+  --bg: #151515; --surface: #1E1E1E; --ink: #E0E0DE; --muted: #8E8E8A; --line: #2E2E2D;
+  --accent: #C4C4BF; --on-accent: #151515; --accent-soft: #2C2C2B; --hl: rgba(255, 255, 255, .07);
+  --mark: rgba(220, 190, 100, .28); --danger: #FF8A75; --cover: #262626; --shadow: rgba(0, 0, 0, .5); --dim: .22;
+}
+
+/* ---------- Sage: soft green, easy on the eyes ---------- */
+:root[data-palette="sage"] {
+  --bg: #ECEFE7; --surface: #F7F9F4; --ink: #1E2820; --muted: #66705F; --line: #D6DCCD;
+  --accent: #4A7552; --on-accent: #F7F9F4; --accent-soft: #DCE7D9; --hl: rgba(74, 117, 82, .10);
+  --mark: rgba(225, 180, 60, .38); --danger: #A3271B; --cover: #DCE3D3; --shadow: rgba(20, 40, 20, .15); --dim: .25;
+}
+:root[data-palette="sage"][data-theme="dark"] {
+  --bg: #121612; --surface: #1A201A; --ink: #E1E6DC; --muted: #8E9A88; --line: #2A322A;
+  --accent: #8FC197; --on-accent: #121612; --accent-soft: #24352A; --hl: rgba(143, 193, 151, .12);
+  --mark: rgba(225, 190, 80, .28); --danger: #FF8A75; --cover: #1F271F; --shadow: rgba(0, 0, 0, .45); --dim: .2;
+}

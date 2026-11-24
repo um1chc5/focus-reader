@@ -11,7 +11,8 @@ Read a PDF one sentence or one word at a time, in English or Vietnamese.
 - **Search** the whole document (`F`, `/` or Ctrl+F). Accents are optional, so `nguyen` finds `Nguyễn`.
 - **Library.** Every PDF you open is saved in the browser (IndexedDB), along with its cover and your reading position.
 - **Vietnamese support.** The interface is translated, tone marks that come out split during extraction are fixed, sentences are split with Vietnamese rules, and Word view can show two syllables at a time.
-- Warm light and dark themes, adjustable speed (slider or −/+), text size, and keyboard shortcuts.
+- **Appearance panel.** Light, Dark or System mode, plus five color themes: Book, Paper, Blue, Gray and Sage. Themes live in `css/themes.css`.
+- Full-screen reading, adjustable speed (slider or −/+), text size, and keyboard shortcuts.
 - Everything runs in the browser. PDFs are never uploaded.
 
 ## Keyboard
@@ -25,14 +26,17 @@ Read a PDF one sentence or one word at a time, in English or Vietnamese.
 | P | Choose start point |
 | F, / | Search |
 | L | Library |
-| T | Light / dark theme |
+| T | Switch light / dark |
+| Shift+F | Full screen |
 
 ## Project layout
 
 ```
 index.html          Markup for every view
-css/styles.css      Theme tokens (light + dark) and all styles
-js/app.js           Entry point: opening files and books, views, language, theme, keyboard
+css/themes.css      Color themes (each with light + dark tokens)
+css/styles.css      Layout and component styles
+js/app.js           Entry point: opening files and books, views, language, keyboard
+js/themes.js        Appearance panel (mode + palette) and full screen
 js/reader.js        Spotlight and Word rendering, playback timing, speed, text size
 js/search.js        In-document search bar
 js/picker.js        Start-point dialog (thumbnails, sentences, dialog search)
