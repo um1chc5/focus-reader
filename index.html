@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Focus Reader</title>
+<meta name="description" content="Read a PDF one sentence or one word at a time, in light or dark, in English or Vietnamese.">
+<meta name="theme-color" content="#F3EBDD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17120E" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23B4561F' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23B4561F'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="doc">
+      <div class="mark" aria-hidden="true"><i></i></div>
+      <div class="docText">
+        <div class="docName" id="docName"></div>
+        <div class="meta" id="docMeta"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <div class="seg readerOnly" role="group" id="modeGroup">
+        <button id="modeSpot" aria-pressed="true" data-i="spot"></button>
+        <button id="modeWord" aria-pressed="false" data-i="word"></button>
+      </div>
+      <button class="btn icon readerOnly" id="searchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+      <button class="btn readerOnly" id="pickBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/></svg><span data-i="pick"></span></button>
+      <button class="btn" id="libBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14M9 19V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v12M15.5 6.5l3-.8a1 1 0 0 1 1.2.7l3 11.2M3 20h18"/></svg><span id="libBtnLabel"></span></button>
+      <button class="btn primary" id="openBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0L7 8m5-5 5 5M5 21h14"/></svg><span data-i="open"></span></button>
+      <input type="file" id="file" accept="application/pdf,.pdf" hidden>
+      <button class="btn icon lang" id="langBtn"></button>
+      <button class="btn icon" id="themeBtn"></button>
+    </div>
+  </header>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <div class="searchWrap readerOnly" id="searchWrap" hidden>
+    <div class="search">
+      <div class="qi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="q" autocomplete="off" spellcheck="false"></div>
+      <span id="qCount" aria-live="polite"></span>
+      <button class="btn icon" id="qPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 15 6-6 6 6"/></svg></button>
+      <button class="btn icon" id="qNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button class="btn icon" id="qClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <ol class="qres hitList" id="qResults" hidden></ol>
+  </div>
+
+  <main id="stage" class="readerOnly">
+    <section class="spot" id="spot"></section>
+    <section class="word" id="word" hidden>
+      <div class="rsvp">
+        <div class="tick"></div>
+        <div class="wline"><span id="wl"></span><span id="wp"></span><span id="wr"></span></div>
+        <div class="tick"></div>
+      </div>
+      <p class="wctx" id="wctx"></p>
+    </section>
+  </main>
+
+  <section class="library" id="library" hidden>
+    <div class="libInner">
+      <div class="libHead">
+        <h1 data-i="libTitle"></h1>
+        <span class="meta" id="libCount"></span>
+      </div>
+      <div class="shelf" id="shelf"></div>
+    </div>
+  </section>
+
+  <footer class="ctrl readerOnly" id="ctrl">
+    <div class="bar" id="bar"><div><div id="fill"></div></div></div>
+    <div class="row">
+      <div class="pos" id="pos"></div>
+      <div class="transport">
+        <button class="btn icon" id="prevBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button class="play" id="playBtn"></button>
+        <button class="btn icon" id="nextBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+      <div class="prefs">
+        <label class="chunk" id="chunkWrap" hidden><input type="checkbox" id="chunk"><span data-i="chunk"></span></label>
+        <div class="speed">
+          <label for="wpm" data-i="speed"></label>
+          <button class="btn icon sm" id="wpmDown"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 12h12"/></svg></button>
+          <input type="range" id="wpm" min="100" max="800" step="25" value="300">
+          <button class="btn icon sm" id="wpmUp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 12h12M12 6v12"/></svg></button>
+          <output id="wpmOut" for="wpm"></output>
+        </div>
+        <div class="fsz">
+          <button class="btn icon sm" id="fsDown" style="font-size:11px">A</button>
+          <button class="btn icon sm" id="fsUp" style="font-size:15px">A</button>
+        </div>
+      </div>
+    </div>
+    <div class="kbd" id="kbd"></div>
+  </footer>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="panelHead">
+      <h2 id="sheetTitle" data-i="sheetTitle"></h2>
+      <button class="btn icon" id="sheetClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="panelSearch">
+      <div class="qi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="pq" autocomplete="off" spellcheck="false"></div>
+    </div>
+    <div class="panelBody">
+      <div class="pages" id="pages"></div>
+      <div class="sents" id="sents">
+        <div class="sentHead"><strong id="sentTitle"></strong><span id="sentCount"></span><span class="grow"></span><button class="btn" id="pageStart" data-i="pageStart"></button></div>
+        <ol id="sentList" class="hitList"></ol>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="drop" id="drop" hidden><div data-i="drop"></div></div>
+<div class="loading" id="loading" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
