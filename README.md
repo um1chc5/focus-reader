@@ -26,6 +26,7 @@ Read a PDF one sentence or one word at a time, in English or Vietnamese.
 | P | Choose start point |
 | F, / | Search |
 | L | Library |
+| H | Hide / show the floating controls |
 | T | Switch light / dark |
 | Shift+F | Full screen |
 

@@ -44,9 +44,10 @@
         <button id="modeWord" aria-pressed="false" data-i="word"></button>
       </div>
       <button class="btn icon readerOnly" id="searchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
-      <button class="btn readerOnly" id="pickBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/></svg><span data-i="pick"></span></button>
-      <button class="btn" id="libBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14M9 19V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v12M15.5 6.5l3-.8a1 1 0 0 1 1.2.7l3 11.2M3 20h18"/></svg><span id="libBtnLabel"></span></button>
-      <button class="btn primary" id="openBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0L7 8m5-5 5 5M5 21h14"/></svg><span data-i="open"></span></button>
+      <button class="btn icon readerOnly" id="pickBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/></svg></button>
+      <button class="btn icon" id="libBtn"></button>
+      <span class="sep" aria-hidden="true"></span>
+      <button class="btn primary" id="openBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0L7 8m5-5 5 5M5 21h14"/></svg><span class="openLbl" data-i="open"></span></button>
       <input type="file" id="file" accept="application/pdf,.pdf" hidden>
       <button class="btn icon lang" id="langBtn"></button>
       <button class="btn icon" id="fsBtn"></button>
@@ -66,7 +67,10 @@
     </div>
   </header>
 
-  <div class="notice" id="notice" hidden></div>
+  <div class="notice" id="notice" role="status" hidden>
+    <span id="noticeText"></span>
+    <button id="noticeClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
 
   <div class="searchWrap readerOnly" id="searchWrap" hidden>
     <div class="search">
@@ -124,9 +128,13 @@
           <button class="btn icon sm" id="fsUp" style="font-size:15px">A</button>
         </div>
       </div>
+      <button class="btn icon sm collapseBtn" id="ctrlCollapse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </div>
-    <div class="kbd" id="kbd"></div>
   </footer>
+  <button class="mini readerOnly isHidden" id="ctrlMini" inert>
+    <svg class="ring" viewBox="0 0 46 46" aria-hidden="true"><circle class="track" cx="23" cy="23" r="20"/><circle class="prog" id="miniRing" cx="23" cy="23" r="20"/></svg>
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+  </button>
 </div>
 
 <div class="sheet" id="sheet" hidden>

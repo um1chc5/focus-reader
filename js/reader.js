@@ -130,7 +130,9 @@ export function renderPos() {
   for (let i = st.si; i < tot; i++) left += D.S[i].w.length;
   const mins = Math.max(1, Math.round(left / st.wpm));
   $('pos').innerHTML = T('pos')(D.S[st.si].p, D.pages, (st.si + 1).toLocaleString(), tot.toLocaleString(), mins, st.wpm);
-  $('fill').style.width = ((st.si + 1) / tot * 100).toFixed(2) + '%';
+  const frac = (st.si + 1) / tot;
+  $('fill').style.width = (frac * 100).toFixed(2) + '%';
+  $('miniRing').style.strokeDashoffset = (125.66 * (1 - frac)).toFixed(2);
   clearTimeout(saveTimer);
   saveTimer = setTimeout(savePosition, 500);
 }
@@ -200,6 +202,7 @@ export function updatePlay() {
   b.setAttribute('aria-label', T(st.playing ? 'pause' : 'play'));
   b.title = T(st.playing ? 'pause' : 'play') + ' (Space)';
   b.innerHTML = st.playing ? ICON_PAUSE : ICON_PLAY;
+  $('ctrlMini').classList.toggle('playing', st.playing);
 }
 
 export function restart() {

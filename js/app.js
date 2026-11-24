@@ -18,15 +18,40 @@ const pdfjs = window.pdfjsLib;
 if (pdfjs) pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 /* ---------- Notices ---------- */
+// Info notices fade after a few seconds; errors stay until closed.
 let noticeState = null;
-function note(key, arg, err) { noticeState = key ? { key, arg, err } : null; paintNotice(); }
+let noticeTimer = null;
+function note(key, arg, err) {
+  noticeState = key ? { key, arg, err } : null;
+  clearTimeout(noticeTimer);
+  if (key && !err) noticeTimer = setTimeout(() => note(null), 6000);
+  paintNotice();
+}
 function paintNotice() {
   const n = $('notice');
   if (!noticeState) { n.hidden = true; return; }
   const v = T(noticeState.key);
   n.hidden = false;
   n.className = 'notice' + (noticeState.err ? ' err' : '');
-  n.textContent = typeof v === 'function' ? v(noticeState.arg) : v;
+  $('noticeText').textContent = typeof v === 'function' ? v(noticeState.arg) : v;
+}
+
+/* ---------- Floating controls ---------- */
+const ICON_LIB = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14M9 19V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v12M15.5 6.5l3-.8a1 1 0 0 1 1.2.7l3 11.2M3 20h18"/></svg>';
+const ICON_READ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2zM22 5h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"/></svg>';
+
+function setCollapsed(on, focus, instant) {
+  st.ctrlCollapsed = on;
+  prefs.set('ctrlCollapsed', on);
+  const app = document.querySelector('.app');
+  if (instant) app.classList.add('noAnim');
+  $('ctrl').classList.toggle('isCollapsed', on);
+  $('ctrlMini').classList.toggle('isHidden', !on);
+  $('ctrl').inert = on;           // hidden controls can't be tabbed to
+  $('ctrlMini').inert = !on;
+  app.classList.toggle('ctrlCollapsed', on);
+  if (instant) requestAnimationFrame(() => requestAnimationFrame(() => app.classList.remove('noAnim')));
+  if (focus) (on ? $('ctrlMini') : $('playBtn')).focus();
 }
 const loading = (msg) => { const L = $('loading'); L.hidden = !msg; if (msg) L.textContent = msg; };
 
@@ -48,7 +73,7 @@ function setDoc(d, startAt = 0) {
 function loadSample() {
   const d = makeDoc({ sample: true, key: 'sample-' + st.lang, pages: SAMPLE[st.lang].length, lang: st.lang }, SAMPLE[st.lang]);
   setDoc(d, prefs.get('pos:' + d.key, 0));
-  note('sampleNote');
+  note(null);
 }
 
 async function openFile(file) {
@@ -137,18 +162,21 @@ function showLibrary() {
 
 function paintLibButton() {
   const inLib = st.view === 'library';
-  $('libBtnLabel').textContent = T(inLib ? 'reading' : 'library');
-  $('libBtn').title = T(inLib ? 'readTip' : 'libTip');
+  const b = $('libBtn');
+  b.innerHTML = inLib ? ICON_READ : ICON_LIB;
+  b.title = T(inLib ? 'readTip' : 'libTip');
+  b.setAttribute('aria-label', T(inLib ? 'reading' : 'library'));
 }
 
 /* ---------- Text refresh (language) ---------- */
 function refreshText() {
   document.documentElement.lang = st.lang;
   document.querySelectorAll('[data-i]').forEach((el) => { el.textContent = T(el.dataset.i); });
-  $('kbd').innerHTML = T('kbd');
   const tip = (id, k, aria) => { $(id).title = T(k); if (aria) $(id).setAttribute('aria-label', T(k)); };
   $('modeGroup').setAttribute('aria-label', T('modeGroup'));
-  tip('modeSpot', 'spotTip'); tip('modeWord', 'wordTip'); tip('pickBtn', 'pickTip');
+  tip('modeSpot', 'spotTip'); tip('modeWord', 'wordTip'); tip('pickBtn', 'pickTip', true);
+  tip('openBtn', 'openTip'); tip('noticeClose', 'close', true);
+  tip('ctrlCollapse', 'hideCtrl', true); tip('ctrlMini', 'showCtrl', true);
   $('langBtn').textContent = T('langLabel'); tip('langBtn', 'langTip', true);
   tip('prevBtn', 'prev', true); tip('nextBtn', 'next', true); tip('fsDown', 'smaller', true); tip('fsUp', 'larger', true);
   tip('wpmDown', 'slower', true); tip('wpmUp', 'faster', true);
@@ -188,6 +216,9 @@ function bindEvents() {
   $('modeWord').onclick = () => setMode('word');
   $('langBtn').onclick = () => setLang(st.lang === 'vi' ? 'en' : 'vi');
   $('libBtn').onclick = () => (st.view === 'library' ? showReader() : showLibrary());
+  $('noticeClose').onclick = () => note(null);
+  $('ctrlCollapse').onclick = () => setCollapsed(true, true);
+  $('ctrlMini').onclick = () => setCollapsed(false, true);
   $('playBtn').onclick = toggle;
   $('prevBtn').onclick = () => step(-1);
   $('nextBtn').onclick = () => step(1);
@@ -253,6 +284,7 @@ function bindEvents() {
     if (isPickerOpen()) { if (e.key === 'Escape') closePicker(); return; }
     if (k === 'f' && e.shiftKey) { e.preventDefault(); toggleFullscreen(); return; }
     if (k === 'l') { $('libBtn').click(); return; }
+    if (k === 'h' && st.view === 'reader') { setCollapsed(!st.ctrlCollapsed); return; }
     if (k === 't') { toggleDark(); return; }
     if (st.view !== 'reader') return;
     if (k === 'f' || e.key === '/') { e.preventDefault(); openSearch(); return; }
@@ -273,6 +305,7 @@ async function start() {
   bindEvents();
   setWpm(st.wpm);
   setFs(st.fs);
+  setCollapsed(prefs.get('ctrlCollapsed', false), false, true);
   refreshText();
   let books = [];
   try { books = await listBooks(); } catch { /* storage blocked */ }
