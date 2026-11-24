@@ -52,12 +52,10 @@ There's no build step. The app uses plain ES modules and loads [pdf.js](https://
 
 ## Run locally
 
-ES modules need an HTTP server, so opening the file directly won't work:
+ES modules need an HTTP server, so opening the file directly won't work. The project includes a small dev server with no dependencies (Node 18+):
 
 ```sh
-npx serve .
-# or
-python -m http.server 8000
+npm run dev        # http://localhost:5173
 ```
 
 ## Limits
