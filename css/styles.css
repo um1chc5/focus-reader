@@ -308,6 +308,117 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1
   white-space: nowrap; max-width: calc(100vw - 32px); overflow: hidden; text-overflow: ellipsis;
 }
 
+/* ---------- Mini window (Document PiP + in-page floating fallback) ---------- */
+#pipBtn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+
+body.isPipBody { height: 100%; overflow: hidden; padding: 0; }
+body.isPipBody .miniShell { height: 100%; border-radius: 0; border: 0; box-shadow: none; }
+
+.miniWin {
+  position: fixed; z-index: 24; border-radius: 14px;
+  box-shadow: 0 18px 48px var(--shadow), 0 2px 8px var(--shadow);
+}
+.miniWin.isInteracting { user-select: none; -webkit-user-select: none; }
+.miniWin .miniHead { cursor: grab; touch-action: none; }
+.miniWin.isInteracting .miniHead { cursor: grabbing; }
+
+.miniShell {
+  position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;
+  background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 14px;
+  overflow: hidden;
+}
+.miniHead {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px 7px 12px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  opacity: 0; transform: translateY(-6px); pointer-events: none;
+  transition: opacity .2s var(--ease), transform .2s var(--ease);
+}
+.miniTitleWrap { min-width: 0; flex: 1; line-height: 1.2; }
+.miniTitle { font-weight: 600; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.miniMeta { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.miniHeadActions { display: flex; align-items: center; gap: 4px; flex: none; }
+.miniModeBtn { height: 26px; padding: 0 8px; font-size: 11.5px; }
+.miniCloseBtn { width: 26px; height: 26px; }
+
+.miniStage {
+  flex: 1; min-height: 0; overflow: auto; position: relative;
+  container-type: size;
+}
+.miniSpot {
+  font-family: var(--read); font-size: clamp(14px, calc(var(--fs) * .82), 24px);
+  line-height: 1.65; padding: 34% 16px 42%;
+}
+.miniWord {
+  height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  gap: 10px; padding: 14px;
+}
+.miniWord .rsvp { width: 100%; max-width: 100%; }
+.miniWord .tick { height: 9px; }
+.miniWord .wline {
+  font-size: clamp(20px, min(9cqi, 24cqb), 44px);
+  line-height: 1.45; padding: 4px 0;
+}
+.miniWord .mwl { text-align: right; }
+.miniWord .mwp { color: var(--accent); font-weight: 500; }
+.miniWord .mwr { text-align: left; }
+.miniWctx {
+  font-size: 12.5px; line-height: 1.5; min-height: 0; max-width: 100%;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+@container (max-height: 125px) {
+  .miniWctx { display: none; }
+}
+
+.miniFoot {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+  padding: 0 10px 7px;
+  opacity: 0; transform: translateY(8px); pointer-events: none;
+  transition: opacity .2s var(--ease), transform .2s var(--ease);
+}
+.miniShell.showChrome .miniFoot,
+.miniShell.showChrome .miniHead,
+.miniShell:has(:focus-visible) .miniFoot,
+.miniShell:has(:focus-visible) .miniHead,
+.miniWin.isInteracting .miniHead {
+  opacity: 1; transform: translateY(0); pointer-events: auto;
+}
+.miniBar { height: 12px; display: flex; align-items: center; cursor: pointer; }
+.miniBar > div { height: 3px; width: 100%; background: var(--line); border-radius: 3px; overflow: hidden; }
+.miniFill { height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+.miniRow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.miniTransport { display: flex; align-items: center; gap: 6px; }
+.miniRight { display: flex; align-items: center; gap: 6px; }
+.miniPlay {
+  width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--accent);
+  color: var(--on-accent); display: grid; place-items: center; cursor: pointer;
+}
+.miniPlay svg { width: 16px; height: 16px; }
+.miniSpeed { display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.miniWpm { min-width: 52px; text-align: center; color: var(--ink); white-space: nowrap; }
+
+/* In-page floating resize handles (edges + corners) */
+.miniResize { position: absolute; z-index: 4; touch-action: none; }
+.miniResize-n { top: 0; left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+.miniResize-s { bottom: 0; left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+.miniResize-e { right: 0; top: 10px; bottom: 10px; width: 6px; cursor: ew-resize; }
+.miniResize-w { left: 0; top: 10px; bottom: 10px; width: 6px; cursor: ew-resize; }
+.miniResize-nw { top: 0; left: 0; width: 12px; height: 12px; cursor: nwse-resize; }
+.miniResize-ne { top: 0; right: 0; width: 12px; height: 12px; cursor: nesw-resize; }
+.miniResize-sw { bottom: 0; left: 0; width: 12px; height: 12px; cursor: nesw-resize; }
+.miniResize-se { bottom: 0; right: 0; width: 14px; height: 14px; cursor: nwse-resize; }
+.miniResize-se::after {
+  content: ""; position: absolute; right: 3px; bottom: 3px; width: 7px; height: 7px;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  border-bottom-right-radius: 2px; opacity: .55; pointer-events: none;
+}
+.miniResize-se:hover::after { opacity: 1; border-color: var(--accent); }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
   main { scroll-behavior: auto; }

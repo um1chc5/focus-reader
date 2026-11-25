@@ -13,6 +13,7 @@ import {
 import { initPicker, openPicker, closePicker, isPickerOpen, refreshPicker } from './picker.js';
 import { initLibrary, renderLibrary } from './library.js';
 import { initTheme, paintThemeUI, toggleDark, toggleFullscreen, isThemePopOpen, closeThemePop } from './themes.js';
+import { initMini, toggleMini, isMiniOpen, paintMiniButton, syncMini } from './mini.js';
 
 const pdfjs = window.pdfjsLib;
 if (pdfjs) pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -150,7 +151,7 @@ function showReader() {
 }
 
 function showLibrary() {
-  stop();
+  if (!isMiniOpen()) stop();
   closePicker();
   $('qResults').hidden = true;
   st.view = 'library';
@@ -185,7 +186,7 @@ function refreshText() {
   $('q').placeholder = T('searchPh'); $('q').setAttribute('aria-label', T('searchPh'));
   $('pq').placeholder = T('pickerPh'); $('pq').setAttribute('aria-label', T('pickerPh'));
   $('wpmOut').textContent = st.wpm + ' ' + T('unit');
-  paintThemeUI(); updatePlay(); paintNotice(); paintCount(); paintLibButton();
+  paintThemeUI(); updatePlay(); paintNotice(); paintCount(); paintLibButton(); paintMiniButton(); syncMini();
   const D = st.doc;
   if (D) {
     $('docName').textContent = D.sample ? T('sampleName') : D.name;
@@ -248,6 +249,7 @@ function bindEvents() {
 
   initSearch();
   initPicker();
+  initMini();
   initLibrary({
     onOpen: openBook,
     onAdd: pickFile,
@@ -285,6 +287,7 @@ function bindEvents() {
     if (k === 'f' && e.shiftKey) { e.preventDefault(); toggleFullscreen(); return; }
     if (k === 'l') { $('libBtn').click(); return; }
     if (k === 'h' && st.view === 'reader') { setCollapsed(!st.ctrlCollapsed); return; }
+    if (k === 'i' && st.doc && (st.view === 'reader' || isMiniOpen())) { e.preventDefault(); toggleMini(); return; }
     if (k === 't') { toggleDark(); return; }
     if (st.view !== 'reader') return;
     if (k === 'f' || e.key === '/') { e.preventDefault(); openSearch(); return; }

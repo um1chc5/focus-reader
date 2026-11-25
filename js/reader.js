@@ -4,8 +4,21 @@ import { T } from './i18n.js';
 import { updateBook } from './db.js';
 
 let timer = null;
+let timerWin = window;
+let activeTimerWin = () => window;
 let wakeLock = null;
 let saveTimer = null;
+const listeners = [];
+
+export function onReaderChange(fn) { listeners.push(fn); }
+function notify(ev) { listeners.forEach((fn) => fn(ev)); }
+export function setTimerWindow(getter) { activeTimerWin = getter; }
+function clearTimer() {
+  if (timer !== null) {
+    try { timerWin.clearTimeout(timer); } catch { clearTimeout(timer); }
+    timer = null;
+  }
+}
 
 const ICON_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>';
 const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
@@ -28,7 +41,7 @@ export function clearTokenCache() {
   if (st.doc) st.doc.S.forEach((s) => { delete s.c; });
 }
 
-export function invalidate() { st.renderedPage = -1; }
+export function invalidate() { st.renderedPage = -1; notify('invalidate'); }
 
 export function render() {
   $('spot').hidden = st.mode !== 'spot';
@@ -38,6 +51,7 @@ export function render() {
   if (!st.doc) return;
   if (st.mode === 'spot') renderSpot(); else renderWord();
   renderPos();
+  notify('render');
 }
 
 /** Fill an element with sentence text, wrapping search matches in <mark>. */
@@ -89,7 +103,7 @@ function renderSpot() {
 }
 
 /** Split a word around its optimal recognition point. */
-function orp(w) {
+export function orp(w) {
   const chars = [...w];
   const first = chars.findIndex((c) => /[\p{L}\p{N}]/u.test(c));
   let last = chars.length - 1;
@@ -161,7 +175,10 @@ function delay() {
 }
 
 function tick() {
-  timer = setTimeout(() => {
+  clearTimer();
+  timerWin = activeTimerWin() || window;
+  timer = timerWin.setTimeout(() => {
+    timer = null;
     const D = st.doc;
     if (st.mode === 'word' && st.wi < tokens(D.S[st.si]).length - 1) st.wi++;
     else if (st.si < D.S.length - 1) { st.si++; st.wi = 0; }
@@ -181,7 +198,7 @@ export function play() {
 
 export function stop() {
   st.playing = false;
-  clearTimeout(timer);
+  clearTimer();
   updatePlay();
   if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
 }
@@ -203,10 +220,11 @@ export function updatePlay() {
   b.title = T(st.playing ? 'pause' : 'play') + ' (Space)';
   b.innerHTML = st.playing ? ICON_PAUSE : ICON_PLAY;
   $('ctrlMini').classList.toggle('playing', st.playing);
+  notify('play');
 }
 
 export function restart() {
-  if (st.playing) { clearTimeout(timer); tick(); }
+  if (st.playing) { clearTimer(); tick(); }
 }
 
 export function jump(i, wi = 0) {
@@ -238,6 +256,7 @@ export function setWpm(v) {
   $('wpmOut').textContent = st.wpm + ' ' + T('unit');
   prefs.set('wpm', st.wpm);
   if (st.doc) renderPos();
+  notify('wpm');
 }
 
 export function setFs(v) {
@@ -246,4 +265,5 @@ export function setFs(v) {
   prefs.set('fs', st.fs);
   invalidate();
   if (st.doc) render();
+  notify('fs');
 }

@@ -12,6 +12,7 @@ Read a PDF one sentence or one word at a time, in English or Vietnamese.
 - **Library.** Every PDF you open is saved in the browser (IndexedDB), along with its cover and your reading position.
 - **Vietnamese support.** The interface is translated, tone marks that come out split during extraction are fixed, sentences are split with Vietnamese rules, and Word view can show two syllables at a time.
 - **Appearance panel.** Light, Dark or System mode, plus five color themes: Book, Paper, Blue, Gray and Sage. Themes live in `css/themes.css`.
+- **Mini window.** Pop out a compact always-on-top Picture-in-Picture window (`I`) in Chrome/Edge, or an in-page draggable and resizable floating window as a fallback, supporting both Spotlight and Word modes.
 - Full-screen reading, adjustable speed (slider or −/+), text size, and keyboard shortcuts.
 - Everything runs in the browser. PDFs are never uploaded.
 
@@ -27,6 +28,7 @@ Read a PDF one sentence or one word at a time, in English or Vietnamese.
 | F, / | Search |
 | L | Library |
 | H | Hide / show the floating controls |
+| I | Open / close mini window |
 | T | Switch light / dark |
 | Shift+F | Full screen |
 
@@ -39,6 +41,7 @@ css/styles.css      Layout and component styles
 js/app.js           Entry point: opening files and books, views, language, keyboard
 js/themes.js        Appearance panel (mode + palette) and full screen
 js/reader.js        Spotlight and Word rendering, playback timing, speed, text size
+js/mini.js          Mini window (Document Picture-in-Picture + draggable/resizable fallback)
 js/search.js        In-document search bar
 js/picker.js        Start-point dialog (thumbnails, sentences, dialog search)
 js/library.js       Library shelf view

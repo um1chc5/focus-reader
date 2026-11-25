@@ -13,6 +13,9 @@ export const PALETTES = [
 ];
 const MODES = ['light', 'dark', 'system'];
 const mq = matchMedia('(prefers-color-scheme: dark)');
+const themeListeners = [];
+
+export function onThemeChange(fn) { themeListeners.push(fn); }
 
 let palette = prefs.get('palette', 'book');
 if (!PALETTES.some((p) => p.id === palette)) palette = 'book';
@@ -33,6 +36,7 @@ export function applyTheme() {
   meta.content = p[eff][0];
   document.head.appendChild(meta);
   paintThemeUI();
+  themeListeners.forEach((fn) => fn());
 }
 
 export function setPalette(id) { palette = id; prefs.set('palette', id); applyTheme(); }
